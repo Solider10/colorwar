@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="theme-color" content="#15171c">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>حرب الألوان</title>
+<style>
+:root{--bg:#f4f1ea;--fg:#222;--cell:#e2ddd0;--blue:#2f6bff;--red:#ff4b4b;--hint:rgba(47,107,255,.35);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171c;--fg:#f1f1f1;--cell:#2a2e37}}
+:root[data-theme="dark"]{--bg:#15171c;--fg:#f1f1f1;--cell:#2a2e37}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;display:flex;flex-direction:column;align-items:center;padding:16px 12px;min-height:100vh}
+h1{margin:4px 0;font-size:26px}
+p.sub{margin:0 0 12px;opacity:.7;font-size:14px;text-align:center}
+.bar{display:flex;width:min(94vw,420px);height:26px;border-radius:13px;overflow:hidden;background:var(--cell);margin-bottom:6px}
+.bar div{transition:width .3s;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px}
+#bb{background:var(--blue)}#br{background:var(--red)}
+#msg{height:24px;margin:6px 0;font-weight:600}
+#grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;width:min(94vw,420px);aspect-ratio:1}
+.c{border:0;border-radius:10px;background:var(--cell);transition:background .25s,transform .25s;padding:0;position:relative}
+.c.p{background:var(--blue)}.c.a{background:var(--red)}
+.c.flip{transform:scale(.8)}
+.c.h::after{content:"";position:absolute;inset:32%;border-radius:50%;background:var(--hint)}
+.lv{display:flex;gap:6px;align-items:center;margin-bottom:10px}
+.lv button{border:2px solid var(--blue);background:transparent;color:var(--fg);border-radius:18px;padding:6px 14px;font-size:14px;font-weight:600}
+.lv button.on{background:var(--blue);color:#fff}
+.lv #snd{border-color:var(--cell);font-size:18px;padding:4px 10px}
+[hidden]{display:none!important}
+#cd{width:84px;text-align:center;font-size:16px;text-transform:uppercase;border:2px solid var(--cell);border-radius:18px;padding:6px;background:transparent;color:var(--fg)}
+.onl{text-align:center;font-size:13px;opacity:.85;margin:2px 0 8px;max-width:420px}
+#th{flex-wrap:wrap;justify-content:center}
+.glow .c.p{box-shadow:0 0 12px var(--blue)}.glow .c.a{box-shadow:0 0 12px var(--red)}
+#th button{width:34px;height:34px;border-radius:50%;padding:0;border:3px solid transparent;box-shadow:0 0 0 1px var(--cell)}
+#th button.on{border-color:var(--fg)}
+#cards button{border-color:var(--tc,var(--blue));padding:6px 12px}
+#cards button.armed{background:var(--tc,var(--blue));color:#fff;transform:translateY(-2px)}
+#cards button:disabled{opacity:.35}
+#cards{flex-wrap:wrap;justify-content:center;min-height:38px}
+#cards .mt{font-size:13px;font-weight:700;opacity:.85}
+.c.sh{box-shadow:inset 0 0 0 3px rgba(255,255,255,.85)}
+.c.h.a::after,.c.h.p::after{background:rgba(255,255,255,.75)}
+#lbp{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+#lbp .card{background:var(--bg);color:var(--fg);border-radius:18px;width:min(94vw,420px);max-height:84vh;overflow:auto;padding:16px}
+#lbp .nm{display:flex;flex-direction:column;gap:6px;margin:10px 0;font-size:13px}
+#lbp .nm input{margin-inline-start:6px;width:130px;border:2px solid var(--cell);border-radius:12px;padding:5px 8px;background:transparent;color:var(--fg);font-size:14px}
+.row{display:flex;gap:8px;padding:7px 6px;border-bottom:1px solid var(--cell);font-size:14px}
+.row.me{background:var(--cell);border-radius:8px;font-weight:700}
+#lbl{min-height:60px;margin:6px 0;font-size:14px}
+button.r{margin-top:14px;padding:10px 26px;font-size:16px;border:0;border-radius:22px;background:var(--blue);color:#fff;font-weight:700}
+.how{max-width:420px;font-size:13px;opacity:.75;margin-top:14px;line-height:1.7}
+[data-m="online"],#tg{display:none!important}
+body{-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;overscroll-behavior:none}
+input{-webkit-user-select:text;user-select:text}
+section{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;min-height:calc(100vh - 40px)}
+#splash{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity .5s}
+#splash.out{opacity:0;pointer-events:none}
+.logo{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:130px;height:130px;margin-bottom:14px}
+.logo i{border-radius:12px;background:var(--cell);opacity:0;transform:scale(.3);animation:pop .45s forwards;animation-delay:calc(var(--i)*90ms)}
+.logo i.b{background:var(--blue)}.logo i.r{background:var(--red)}
+.logo.st{width:96px;height:96px}.logo.st i{opacity:1;transform:none;animation:none}
+@keyframes pop{to{opacity:1;transform:scale(1)}}
+@keyframes fade{to{opacity:1}}
+#splash .t{opacity:0;animation:fade .6s 1s forwards}
+.mbtns{display:flex;flex-direction:column;gap:10px;width:min(86vw,340px);margin:16px 0}
+.big{border:0;border-radius:22px;padding:15px;font-size:18px;font-weight:700;background:var(--blue);color:#fff}
+.big.g{background:transparent;color:var(--fg);border:2px solid var(--cell)}
+.foot{font-size:12px;opacity:.6}.foot a{color:inherit}
+.top{display:flex;align-items:center;justify-content:space-between;width:min(94vw,420px);margin-bottom:6px}
+.top button{border:2px solid var(--cell);background:transparent;color:var(--fg);border-radius:16px;padding:6px 12px;font-weight:700}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.ov .card{background:var(--bg);color:var(--fg);border-radius:18px;width:min(92vw,380px);max-height:84vh;overflow:auto;padding:16px;text-align:center}
+.ov .col{display:flex;flex-direction:column;gap:8px;margin:12px 0 4px}
+.ov .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.ov .x{border:0;background:transparent;color:var(--fg);font-size:22px}
+#hows .how{opacity:1;font-size:14px;margin:8px 0;text-align:start}
+#gameScr{display:flex;flex-direction:column;align-items:center;width:100%}
+</style>
+</head>
+<body>
+<div id="splash"><div class="logo"><i class="b" style="--i:0"></i><i class="b" style="--i:1"></i><i class="r" style="--i:2"></i><i class="b" style="--i:3"></i><i class="" style="--i:4"></i><i class="r" style="--i:5"></i><i class="" style="--i:6"></i><i class="r" style="--i:7"></i><i class="r" style="--i:8"></i></div><h1 class="t">حرب الألوان</h1><p class="sub t">لوّن الخريطة .. واخطف مربعات خصمك</p></div>
+<section id="menu" hidden>
+<div class="logo st"><i class="b" style="--i:0"></i><i class="b" style="--i:1"></i><i class="r" style="--i:2"></i><i class="b" style="--i:3"></i><i class="" style="--i:4"></i><i class="r" style="--i:5"></i><i class="" style="--i:6"></i><i class="r" style="--i:7"></i><i class="r" style="--i:8"></i></div>
+<h1>حرب الألوان</h1>
+<p class="sub">لوّن الخريطة .. واخطف مربعات خصمك</p>
+<div class="mbtns">
+<button class="big" id="mCpu">🤖 العب ضد الكمبيوتر</button>
+<button class="big" id="mFriend">👥 العب مع صديق</button>
+<button class="big g" id="mLb">🏆 التقييم</button>
+<button class="big g" id="mSet">⚙️ الإعدادات والثيمات</button>
+<button class="big g" id="mHow">❓ طريقة اللعب</button>
+<button class="big g" id="noads" hidden>🚫 بدون إعلانات</button>
+</div>
+<p class="foot"><a href="privacy.html">سياسة الخصوصية</a> · الإصدار 1.0</p>
+</section>
+<div id="gameScr" hidden>
+<div class="top"><button id="mnu">☰ القائمة</button><b>🎨 حرب الألوان</b><button id="snd" aria-label="الصوت">🔊</button></div>
+<p class="sub" id="sub">أنت الأزرق 🟦 ضد الكمبيوتر الأحمر 🟥</p>
+<div class="lv"><div id="sc" style="font-weight:700;font-size:15px"></div><button id="rsc" style="padding:3px 10px;font-size:12px">صفّر</button></div>
+<div class="lv"><button id="rwd" hidden>🎁 كارت مجاني</button></div>
+<div class="bar"><div id="bb" style="width:50%">1</div><div id="br" style="width:50%">1</div></div>
+<div id="msg"></div>
+<div class="lv" id="cards"></div>
+<div id="cdesc" class="onl" style="min-height:34px;margin:0 0 6px"></div>
+<div id="grid"></div>
+<button class="r" id="rs">ابدأ من جديد</button>
+
+<div id="legacy" hidden>
+<div class="lv"><button data-m="cpu" class="on">🤖 ضد الكمبيوتر</button><button data-m="local">👥 ضد صديق</button><button data-m="online">🌐 أونلاين</button></div>
+<div id="onp" hidden>
+<div class="lv"><button id="mk">أنشئ غرفة</button><input id="cd" maxlength="4" placeholder="الكود" dir="ltr" autocomplete="off"><button id="jn">ادخل</button></div>
+<div id="ost" class="onl">اعمل غرفة وابعت الكود لصاحبك، أو اكتب كود صاحبك وادخل.</div>
+<div class="onl" style="opacity:.6">صاحبك لازم يفتح نفس رابط اللعبة وهو مسجّل دخول وعنده صلاحية مشارك.</div>
+</div>
+<div class="lv">
+<button data-l="0">سهل</button><button data-l="1" class="on">متوسط</button><button data-l="2">صعب</button>
+</div>
+<div class="lv"><button id="lbb">🏆 التقييم</button></div>
+</div>
+</div>
+<div id="lvs" class="ov" hidden><div class="card"><b style="font-size:18px">اختار المستوى</b>
+<div class="col"><button class="big" data-pl="0">😊 سهل</button><button class="big" data-pl="1">🙂 متوسط</button><button class="big" data-pl="2">😈 صعب</button><button class="big g" data-close="lvs">إلغاء</button></div></div></div>
+<div id="sets" class="ov" hidden><div class="card"><div class="hd"><b style="font-size:18px">⚙️ الإعدادات والثيمات</b><button data-close="sets" aria-label="إغلاق" class="x">✕</button></div>
+<div class="lv" id="th"><span style="font-size:13px;opacity:.7">الثيم:</span>
+<button data-t="0" aria-label="كلاسيك" style="background:linear-gradient(90deg,#2f6bff 50%,#ff4b4b 50%)"></button>
+<button data-t="1" aria-label="غابة" style="background:linear-gradient(90deg,#22a559 50%,#ff8a1f 50%)"></button>
+<button data-t="2" aria-label="غروب" style="background:linear-gradient(90deg,#8e44ff 50%,#e6a100 50%)"></button>
+<button data-t="3" aria-label="بحر" style="background:linear-gradient(90deg,#0fb5ae 50%,#ff6f61 50%)"></button>
+<button data-t="4" aria-label="شوكولاتة" style="background:linear-gradient(90deg,#8b5a2b 50%,#ff5fa2 50%)"></button>
+<button data-t="5" aria-label="ليلي نيون" style="background:linear-gradient(90deg,#00b8d9 50%,#ff2bd6 50%);box-shadow:inset 0 -14px 0 #0b0f1a"></button>
+</div>
+<div class="lv"><span style="font-size:13px;opacity:.7">الخريطة:</span><button data-s="5">٥×٥</button><button data-s="7" class="on">٧×٧</button><button data-s="9">٩×٩</button></div>
+<div class="lv" style="justify-content:center"><span style="font-size:13px;opacity:.7">اللغة:</span><button id="lgAr">العربية</button><button id="lgEn">English</button></div>
+<div class="lv" style="justify-content:center"><button id="snd2">🔊 الصوت شغال</button></div>
+<div class="onl" style="opacity:.6"><a href="privacy.html" style="color:inherit">سياسة الخصوصية</a></div></div></div>
+<div id="hows" class="ov" hidden><div class="card"><div class="hd"><b style="font-size:18px">❓ طريقة اللعب</b><button data-close="hows" aria-label="إغلاق" class="x">✕</button></div>
+<div class="how" id="how">
+<b>إزاي تلعب؟</b><br>
+• اضغط على مربع فاضي جنب لونك (فيه نقطة زرقاء) عشان تدهنه.<br>
+• أي مربع أحمر ملاصق للمربع اللي دهنته بيتحول لأزرق!<br>
+• اللعبة بتخلص لما الخريطة تتملي، واللي معاه مربعات أكتر بيكسب.<br>• الكروت: بتكسبها من حركاتك، وكل ما تاخد مربعات أكتر بتوصل لكارت جديد (تخزّن لحد ٤). 💣 قنبلة، ⚡ قفزة، 🔁 دور تاني، 🛡️ درع، 🌊 موجة، 🎯 قناص. اضغط على الكارت وبعدين على المربع.
+</div>
+</div></div>
+<div id="lbp" hidden><div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:18px">🏆 التقييم</b><button id="lbx" aria-label="إغلاق" style="border:0;background:transparent;color:var(--fg);font-size:22px">✕</button></div>
+<div class="nm"><label>اسمك <input id="nm1" maxlength="12"></label><label>اسم صديقك <input id="nm2" maxlength="12"></label></div>
+<div class="lv" style="justify-content:center"><button id="tl" class="on">📱 المحلي</button><button id="tg">🌍 العالمي</button></div>
+<div id="lbl"></div>
+<div id="lbn" class="onl"></div>
+<div class="onl" style="opacity:.6">النقاط: فوز ضد الكمبيوتر ٢ / ٣ / ٥ (سهل / متوسط / صعب)، فوز أونلاين ٤، فوز ضد صديق ٣، التعادل ١.</div>
+<div class="onl" style="opacity:.6"><a href="privacy.html" style="color:inherit">سياسة الخصوصية</a></div>
+<div style="text-align:center"><button id="lbc" style="border:2px solid var(--cell);background:transparent;color:var(--fg);border-radius:16px;padding:5px 14px;font-size:12px">مسح النتايج المحلية</button></div>
+</div></div>
+<script>const EN={"مربع ": "Tile ", "معندكش حركة، الدور على الكمبيوتر": "You have no moves — computer's turn", "الكمبيوتر مالوش حركة، دورك تاني": "Computer has no moves — your turn again", "الكمبيوتر بيفكر...": "Computer is thinking...", "الكمبيوتر مالوش": "Computer has no", "دورك 👆": "Your turn 👆", "قنبلة": "Bomb", "القنبلة 💣: بتلوّن المربع وكل المربعات اللي حواليه (٣×٣) وتاخد اللي فيها من خصمك.": "Bomb 💣: paints the tile and every tile around it (3×3), taking any rival tiles in that area.", "قفزة": "Jump", "القفزة ⚡: لوّن أي مربع فاضي في الخريطة، مش شرط يكون جنب لونك.": "Jump ⚡: paint any empty tile on the map — it doesn't have to touch your color.", "دور تاني": "Extra Turn", "الدور التاني 🔁: العب حركتك العادية وبعدها العب مرة تانية على طول.": "Extra Turn 🔁: play your normal move, then play again right away.", "درع": "Shield", "الدرع 🛡️: العب حركتك العادية، ومربعاتك متتاخدش في حركة خصمك الجاية.": "Shield 🛡️: play your normal move — your tiles can't be taken on your rival's next move.", "موجة": "Wave", "الموجة 🌊: العب حركتك العادية وبتاخد كمان كل مربعات خصمك اللي في نفس الصف.": "Wave 🌊: play your normal move and also take every rival tile in the same row.", "قناص": "Sniper", "القناص 🎯: اخطف مربع واحد من خصمك من أي مكان في الخريطة.": "Sniper 🎯: steal one rival tile from anywhere on the map.", " · كروت الخصم: ": " · Rival cards: ", "اختار كارت وبعدين المربع 🎴": "Pick a card, then a tile 🎴", "كل ما تاخد مربعات أكتر بتكسب كارت جديد ⚡": "Capture more tiles to earn a new card ⚡", "🎴 كسبت كارت جديد!": "🎴 You earned a new card!", "دور إضافي! العب تاني ⚡": "Extra turn! Play again ⚡", "الكمبيوتر كسب كارت 🎴": "The computer earned a card 🎴", "الكمبيوتر لعب كارت الدور التاني 🔁": "The computer played Extra Turn 🔁", "🏆 الأزرق كسب! 🟦": "🏆 Blue wins! 🟦", "🏆 الأحمر كسب! 🟥": "🏆 Red wins! 🟥", "🤝 تعادل!": "🤝 It's a draw!", "🏆 كسبت! برافو عليك": "🏆 You win! Well done!", "😅 صاحبك كسب.. العب تاني": "😅 Your friend won.. play again", "😅 الكمبيوتر كسب.. جرب تاني": "😅 The computer won.. try again", "أنت الأزرق 🟦 ضد الكمبيوتر الأحمر 🟥": "You are Blue 🟦 vs the computer Red 🟥", "الأزرق 🟦 ضد الأحمر 🟥": "Blue 🟦 vs Red 🟥", "دور الأزرق 🟦": "Blue's turn 🟦", "دور الأحمر 🟥": "Red's turn 🟥", "دور صاحبك...": "Your friend's turn...", "الأزرق": "Blue", "الأحمر": "Red", " معندوش حركة، الدور عليك تاني": " has no moves — your turn again", "صاحبك معندوش حركة، دورك تاني": "Your friend has no moves — your turn again", "صاحبك كسب كارت 🎴": "Your friend earned a card 🎴", "الأونلاين مش شغال هنا. افتح اللعبة وانت مسجّل دخول وادعُ صاحبك كمشارك.": "Online play isn't available here. Open the game signed in and invite your friend as a collaborator.", "مقدرتش أدخل الغرفة، جرب تاني": "Couldn't join the room, try again", "أنت الأزرق 🟦 ضد صاحبك": "You are Blue 🟦 vs your friend", "أنت الأحمر 🟥 ضد صاحبك": "You are Red 🟥 vs your friend", "صاحبك دخل ✅ الكود: ": "Your friend joined ✅ Code: ", "متصل مع صاحبك ✅": "Connected to your friend ✅", "الكود: ": "Code: ", " — ابعته لصاحبك واستنى يدخل": " — send it to your friend and wait", "في انتظار صاحبك...": "Waiting for your friend...", "بدخل الغرفة ": "Joining room ", "محدش بيرد.. اتأكد من الكود وإن صاحبك عمل الغرفة": "Nobody is answering.. check the code and that your friend created the room", "صاحبك خرج من الغرفة": "Your friend left the room", "اكتب كود من ٤ حروف أو أرقام": "Enter a 4-character code", "المضيف بس اللي يغيّر حجم الخريطة": "Only the host can change the map size", " — تعادل ": " — Draw ", "لاعب": "Player", "صديق": "Friend", " نقطة": " pts", "ف · ": "W · ", "ت · ": "D · ", "خ": "L", "لسه مفيش نتايج. العب جولة وهتظهر هنا!": "No results yet. Play a round and it will show up here!", "لسه مفيش لاعبين في القائمة العالمية.": "No players on the global list yet.", "النتايج المحفوظة على جهازك.": "Results saved on your device.", "القائمة العالمية مش متاحة هنا.": "The global list isn't available here.", "سجّل دخول عشان اسمك يظهر في القائمة.": "Sign in so your name shows on the list.", "تعذّر تسجيل نتيجتك (صلاحية مشاهدة بس؟).": "Couldn't record your result (view-only access?).", "فيها اللاعبين اللي عندهم صلاحية على اللعبة.": "Shows players who have access to the game.", "اضغط تاني للتأكيد": "Tap again to confirm", "مسح النتايج المحلية": "Clear local results", "🎁 كارت مجاني": "🎁 Free card", "🎁 كارت مجاني (إعلان)": "🎁 Free card (ad)", "🎁 كسبت كارت هدية!": "🎁 You got a gift card!", "الإعلان مش جاهز دلوقتي، جرب بعد شوية": "The ad isn't ready, try again shortly", "الشراء مش متاح دلوقتي": "Purchase isn't available right now", "تعذّر إتمام الشراء": "Couldn't complete the purchase", "🔊 الصوت شغال": "🔊 Sound on", "🔇 الصوت مكتوم": "🔇 Sound off", "حرب الألوان": "Color War", "لوّن الخريطة .. واخطف مربعات خصمك": "Paint the map .. and steal your rival's tiles", "🤖 العب ضد الكمبيوتر": "🤖 Play vs Computer", "👥 العب مع صديق": "👥 Play with a Friend", "🏆 التقييم": "🏆 Leaderboard", "⚙️ الإعدادات والثيمات": "⚙️ Settings & Themes", "❓ طريقة اللعب": "❓ How to Play", "🚫 بدون إعلانات": "🚫 Remove ads", "سياسة الخصوصية": "Privacy Policy", "· الإصدار 1.0": "· Version 1.0", "☰ القائمة": "☰ Menu", "🎨 حرب الألوان": "🎨 Color War", "صفّر": "Reset", "ابدأ من جديد": "Restart", "🤖 ضد الكمبيوتر": "🤖 vs Computer", "👥 ضد صديق": "👥 vs Friend", "🌐 أونلاين": "🌐 Online", "أنشئ غرفة": "Create room", "ادخل": "Join", "اعمل غرفة وابعت الكود لصاحبك، أو اكتب كود صاحبك وادخل.": "Create a room and send the code to your friend, or enter their code and join.", "صاحبك لازم يفتح نفس رابط اللعبة وهو مسجّل دخول وعنده صلاحية مشارك.": "Your friend must open the same game link, signed in, with collaborator access.", "سهل": "Easy", "متوسط": "Medium", "صعب": "Hard", "اختار المستوى": "Choose level", "😊 سهل": "😊 Easy", "🙂 متوسط": "🙂 Medium", "😈 صعب": "😈 Hard", "إلغاء": "Cancel", "الثيم:": "Theme:", "الخريطة:": "Map:", "٥×٥": "5×5", "٧×٧": "7×7", "٩×٩": "9×9", "اللغة:": "Language:", "إزاي تلعب؟": "How to play", "• اضغط على مربع فاضي جنب لونك (فيه نقطة زرقاء) عشان تدهنه.": "• Tap an empty tile next to your color (it has a Blue dot) to paint it.", "• أي مربع أحمر ملاصق للمربع اللي دهنته بيتحول لأزرق!": "• Any Red tile touching the tile you painted turns Blue!", "• اللعبة بتخلص لما الخريطة تتملي، واللي معاه مربعات أكتر بيكسب.": "• The game ends when the map is full — whoever owns more tiles wins.", "• الكروت: بتكسبها من حركاتك، وكل ما تاخد مربعات أكتر بتوصل لكارت جديد (تخزّن لحد ٤). 💣 قنبلة، ⚡ قفزة، 🔁 دور تاني، 🛡️ درع، 🌊 موجة، 🎯 قناص. اضغط على الكارت وبعدين على المربع.": "• Cards: you earn them from your moves — capture more tiles to get a new card (hold up to 4). 💣 Bomb, ⚡ Jump, 🔁 Extra Turn, 🛡️ Shield, 🌊 Wave, 🎯 Sniper. Tap a card, then a tile.", "اسمك": "Your name", "اسم صديقك": "Friend's name", "📱 المحلي": "📱 Local", "🌍 العالمي": "🌍 Global", "النقاط: فوز ضد الكمبيوتر ٢ / ٣ / ٥ (سهل / متوسط / صعب)، فوز أونلاين ٤، فوز ضد صديق ٣، التعادل ١.": "Points: win vs computer 2 / 3 / 5 (Easy / Medium / Hard), online win 4, win vs friend 3, draw 1.", "الصوت": "Sound", "الكود": "Code", "إغلاق": "Close", "كلاسيك": "Classic", "غابة": "Forest", "غروب": "Sunset", "بحر": "Ocean", "شوكولاتة": "Chocolate", "ليلي نيون": "Neon Night"};
+const LANG=(()=>{try{const l=localStorage.getItem('pwLang');if(l==='ar'||l==='en')return l}catch(e){}return /^ar/i.test(navigator.language||'')?'ar':'en'})();
+const T=s=>(LANG==='en'&&EN[s]!==undefined)?EN[s]:s;
+document.documentElement.lang=LANG;document.documentElement.dir=LANG==='ar'?'rtl':'ltr';
+if(LANG==='en'){
+ const w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT),ns=[];while(w.nextNode())ns.push(w.currentNode);
+ ns.forEach(n=>{const k=n.nodeValue.trim();if(k&&EN[k]!==undefined)n.nodeValue=n.nodeValue.replace(k,EN[k])});
+ document.querySelectorAll('[placeholder],[aria-label]').forEach(e=>['placeholder','aria-label'].forEach(a=>{const v=e.getAttribute(a);if(v&&EN[v]!==undefined)e.setAttribute(a,EN[v])}));
+ document.title=EN['حرب الألوان'];
+}
+
+let N=7;const g=document.getElementById('grid'),msg=document.getElementById('msg');
+let b,turn,over,busy,level=1,sound=true,ac,me=1,mode='cpu',waiting=false,seq=0,counted=false,score={1:0,2:0,d:0},scoreMode='cpu',hand={1:[],2:[]},pts={1:0,2:0},shield={1:false,2:false},armed=null,note='';
+function tone(f,d,t='sine',when=0,v=.15){
+ if(!sound)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+ const o=ac.createOscillator(),g2=ac.createGain(),s=ac.currentTime+when;
+ o.type=t;o.frequency.value=f;g2.gain.setValueAtTime(v,s);g2.gain.exponentialRampToValueAtTime(.001,s+d);
+ o.connect(g2);g2.connect(ac.destination);o.start(s);o.stop(s+d)}catch(e){}
+}
+const sfx={
+ me:n=>{tone(520,.12,'triangle');for(let k=0;k<Math.min(n,4);k++)tone(660+k*90,.1,'triangle',.08*(k+1))},
+ cpu:n=>{tone(300,.14,'square',0,.08);for(let k=0;k<Math.min(n,4);k++)tone(240-k*20,.1,'square',.08*(k+1),.07)},
+ win:()=>[523,659,784,1047].forEach((f,k)=>tone(f,.25,'triangle',k*.15)),
+ lose:()=>[400,340,280,200].forEach((f,k)=>tone(f,.28,'sawtooth',k*.18,.08)),
+ draw:()=>{tone(440,.2);tone(440,.2,'sine',.25)}
+};
+document.querySelectorAll('.lv [data-l]').forEach(x=>x.onclick=()=>{
+ setMode('cpu');level=+x.dataset.l;document.querySelectorAll('.lv [data-l]').forEach(y=>y.classList.toggle('on',y===x));start()});
+document.getElementById('snd').onclick=e=>{sound=!sound;e.target.textContent=sound?'🔊':'🔇';if(sound)tone(600,.1)};
+const nb=i=>{const r=Math.floor(i/N),c=i%N,o=[];if(r>0)o.push(i-N);if(r<N-1)o.push(i+N);if(c>0)o.push(i-1);if(c<N-1)o.push(i+1);return o};
+const moves=(bd,p)=>{const m=[];for(let i=0;i<N*N;i++)if(!bd[i]&&nb(i).some(j=>bd[j]===p))m.push(i);return m};
+const flips=(bd,i,p)=>nb(i).filter(j=>bd[j]&&bd[j]!==p&&!shield[bd[j]]);
+function apply(i,p){const f=flips(b,i,p);b[i]=p;f.forEach(j=>b[j]=p);return f}
+function draw(fl=[]){
+ if(turn!==me||over||waiting||busy||armed>=hand[me].length)armed=null;
+ const m=(!over&&!waiting&&turn===me&&!busy)?(armed!==null?targets(hand[me][armed],me):moves(b,me)):[];g.style.setProperty('--hint','color-mix(in srgb, var(--'+(me===1?'blue':'red')+') 35%, transparent)');
+ g.innerHTML='';g.style.gridTemplateColumns='repeat('+N+',1fr)';g.style.gap=N>7?'3px':'5px';
+ b.forEach((v,i)=>{const e=document.createElement('button');e.className='c'+(v===1?' p':v===2?' a':'')+(m.includes(i)?' h':'')+(v&&shield[v]?' sh':'');
+  e.setAttribute('aria-label',T('مربع ')+(i+1));e.onclick=()=>play(i);g.appendChild(e);
+  if(fl.includes(i)){e.classList.add('flip');requestAnimationFrame(()=>requestAnimationFrame(()=>e.classList.remove('flip')))}});
+ const s1=b.filter(v=>v===1).length,s2=b.filter(v=>v===2).length,t=(s1+s2)||1;
+ const bb=document.getElementById('bb'),br=document.getElementById('br');
+ bb.style.width=(s1/t*100)+'%';br.style.width=(s2/t*100)+'%';bb.textContent=s1||'';br.textContent=s2||'';renderCards();
+}
+function end(){over=true;result();draw()}
+function next(p){
+ // decide who moves next; skip if no moves
+ const other=p===1?2:1;
+ if(moves(b,other).length){turn=other}
+ else if(moves(b,p).length){turn=p;msg.textContent=other===1?T('معندكش حركة، الدور على الكمبيوتر'):T('الكمبيوتر مالوش حركة، دورك تاني')}
+ else return end();
+ if(turn===2){busy=true;msg.textContent=T('الكمبيوتر بيفكر...');draw();setTimeout(ai,650)}
+ else{busy=false;if(!msg.textContent.startsWith(T('الكمبيوتر مالوش')))msg.textContent=T('دورك 👆');draw()}
+}
+const emp=bd=>{const e=[];bd.forEach((v,i)=>{if(!v)e.push(i)});return e};
+const CARDS=[
+ {e:'💣',n:T('قنبلة'),d:T('القنبلة 💣: بتلوّن المربع وكل المربعات اللي حواليه (٣×٣) وتاخد اللي فيها من خصمك.')},
+ {e:'⚡',n:T('قفزة'),d:T('القفزة ⚡: لوّن أي مربع فاضي في الخريطة، مش شرط يكون جنب لونك.')},
+ {e:'🔁',n:T('دور تاني'),d:T('الدور التاني 🔁: العب حركتك العادية وبعدها العب مرة تانية على طول.')},
+ {e:'🛡️',n:T('درع'),d:T('الدرع 🛡️: العب حركتك العادية، ومربعاتك متتاخدش في حركة خصمك الجاية.')},
+ {e:'🌊',n:T('موجة'),d:T('الموجة 🌊: العب حركتك العادية وبتاخد كمان كل مربعات خصمك اللي في نفس الصف.')},
+ {e:'🎯',n:T('قناص'),d:T('القناص 🎯: اخطف مربع واحد من خصمك من أي مكان في الخريطة.')}
+];
+const NEED=6;
+function targets(card,p){
+ if(card===1)return emp(b);
+ if(card===5){const t=[];b.forEach((v,k)=>{if(v&&v!==p&&!shield[v])t.push(k)});return t}
+ return moves(b,p);
+}
+function applyC(i,p,card){
+ if(card===5){b[i]=p;return []}
+ const f=apply(i,p);
+ if(card===0){
+  const r=Math.floor(i/N),q=i%N;
+  for(let a=-1;a<=1;a++)for(let d=-1;d<=1;d++){const rr=r+a,cc=q+d;if(rr>=0&&rr<N&&cc>=0&&cc<N){const j=rr*N+cc;if(b[j]&&b[j]!==p&&!shield[b[j]]){b[j]=p;f.push(j)}}}
+ }
+ if(card===4){
+  const r=Math.floor(i/N);
+  for(let q=0;q<N;q++){const j=r*N+q;if(b[j]&&b[j]!==p&&!shield[b[j]]){b[j]=p;f.push(j)}}
+ }
+ return f;
+}
+function earn(p,n){pts[p]+=n;let got=0;while(pts[p]>=NEED){if(hand[p].length>=4){pts[p]=NEED-1;break}pts[p]-=NEED;hand[p].push(Math.floor(Math.random()*CARDS.length));got++}return got}
+let rewardUsed=false;
+function resetCards(){rewardUsed=false;hand={1:[],2:[]};pts={1:0,2:0};shield={1:false,2:false};armed=null;note=''}
+let flashT;
+function flash(t){note=t;clearTimeout(flashT);flashT=setTimeout(()=>{note='';renderCards()},2800)}
+const cardSound=[()=>tone(110,.35,'sawtooth',0,.2),()=>{tone(900,.12,'triangle');tone(1200,.1,'triangle',.1)},()=>{tone(700,.1);tone(900,.1,'sine',.1)},()=>tone(500,.25,'sine'),()=>{tone(300,.1,'triangle');tone(400,.1,'triangle',.08);tone(500,.1,'triangle',.16)},()=>tone(1400,.08,'square',0,.08)];
+function renderCards(){
+ updateMonet();
+ const off=turn!==me||over||waiting||busy,box=$('cards'),h=hand[me],o=me===1?2:1;
+ box.style.setProperty('--tc','var(--'+(me===1?'blue':'red')+')');
+ box.innerHTML='';
+ h.forEach((c,idx)=>{const e=document.createElement('button');e.textContent=CARDS[c].e+' '+CARDS[c].n;e.disabled=off;e.classList.toggle('armed',armed===idx);e.onclick=()=>{if(off)return;armed=armed===idx?null:idx;tone(650,.06);draw()};box.appendChild(e)});
+ const mt=document.createElement('span');mt.className='mt';mt.textContent='⚡ '+pts[me]+'/'+NEED+T(' · كروت الخصم: ')+hand[o].length;box.appendChild(mt);
+ $('cdesc').textContent=note||(armed!==null?CARDS[h[armed]].d:(h.length?(off?'':T('اختار كارت وبعدين المربع 🎴')):T('كل ما تاخد مربعات أكتر بتكسب كارت جديد ⚡')));
+}
+function play(i){
+ if(over||busy||waiting||turn!==me)return;
+ const t=armed!==null?targets(hand[me][armed],me):moves(b,me);
+ if(!t.includes(i))return;
+ const p=me,o=p===1?2:1,card=armed===null?null:hand[p][armed];
+ if(armed!==null)hand[p].splice(armed,1);
+ armed=null;
+ if(card!==null)cardSound[card]();
+ const f=applyC(i,p,card),ex=card===2;
+ shield[o]=false;if(card===3)shield[p]=true;
+ if(earn(p,1+f.length))flash(T('🎴 كسبت كارت جديد!'));
+ (mode==='local'&&p===2?sfx.cpu:sfx.me)(f.length);draw([i,...f]);
+ if(mode==='online')afterOnline(ex);
+ else if(mode==='local')afterLocal(ex);
+ else if(ex&&moves(b,1).length){msg.textContent=T('دور إضافي! العب تاني ⚡');draw()}
+ else next(1);
+}
+function ai(){
+ const m=moves(b,2);if(!m.length){busy=false;return next(2)}
+ let i;
+ if(level===0){i=m[Math.floor(Math.random()*m.length)]}
+ else{
+  let best=-1e9;
+  m.forEach(k=>{
+   let sc=flips(b,k,2).length*2+Math.random();
+   if(level===2){
+    // صعب: يفكر في رد اللاعب وياخد المراكز
+    const t=b.slice(),save=b;b=t;apply(k,2);
+    const rep=moves(b,1).reduce((mx,q)=>Math.max(mx,flips(b,q,1).length),0);
+    const mine=b.filter(v=>v===2).length;b=save;
+    sc=sc+mine*.5-rep*1.5+(k%N===0||k%N===N-1?.6:0)+(k<N||k>=N*N-N?.6:0);
+   }
+   if(sc>best){best=sc;i=k}
+  });
+ }
+ let card=null;
+ if(level>0&&hand[2].length){
+  const H=hand[2],nf=flips(b,i,2).length,has=c=>H.indexOf(c);
+  const bomb3=k=>{let c=0;const r=Math.floor(k/N),q=k%N;for(let a=-1;a<=1;a++)for(let d=-1;d<=1;d++){const rr=r+a,cc=q+d;if(rr>=0&&rr<N&&cc>=0&&cc<N&&b[rr*N+cc]===1&&!shield[1])c++}return c};
+  if(has(0)>=0){let v0=-1,bi=-1;m.forEach(k=>{const v=bomb3(k);if(v>v0){v0=v;bi=k}});if(v0>=3&&v0>nf+1){card=0;i=bi}}
+  if(card===null&&has(4)>=0){let wb=-1,wi=-1;m.forEach(k=>{const r=Math.floor(k/N);let c=flips(b,k,2).length;for(let q=0;q<N;q++){const j=r*N+q;if(b[j]===1&&!shield[1]&&!nb(k).includes(j))c++}if(c>wb){wb=c;wi=k}});if(wb>=3&&wb>nf+1){card=4;i=wi}}
+  if(card===null&&has(1)>=0){let jb=-1,ji=-1;b.forEach((v,k)=>{if(!v){const t=flips(b,k,2).length;if(t>jb){jb=t;ji=k}}});if(jb>=2&&jb>=nf+(level===2?2:3)){card=1;i=ji}}
+  if(card===null&&has(5)>=0&&nf<=1){let sb=-1,si=-1;b.forEach((v,k)=>{if(v===1&&!shield[1]){const c=nb(k).filter(j=>b[j]===2).length;if(c>sb){sb=c;si=k}}});if(si>=0&&sb>=2){card=5;i=si}}
+  if(card===null&&has(3)>=0&&!shield[2]){const hb=Math.max(0,...moves(b,1).map(k=>flips(b,k,1).length));if(level===2?hb>=3:Math.random()<.25)card=3}
+  if(card===null&&has(2)>=0&&nf>=2&&(level===2||Math.random()<.35))card=2;
+  if(card!==null)H.splice(has(card),1);
+ }
+ const f=applyC(i,2,card);shield[1]=false;if(card===3)shield[2]=true;
+ if(earn(2,1+f.length))flash(T('الكمبيوتر كسب كارت 🎴'));
+ sfx.cpu(f.length);busy=false;draw([i,...f]);
+ if(card===2&&moves(b,2).length){turn=2;busy=true;msg.textContent=T('الكمبيوتر لعب كارت الدور التاني 🔁');draw();return setTimeout(ai,700)}
+ if(moves(b,1).length){turn=1;msg.textContent=T('دورك 👆');draw()}
+ else if(moves(b,2).length){turn=2;busy=true;msg.textContent=T('معندكش حركة، الدور على الكمبيوتر');setTimeout(ai,650)}
+ else end();
+}
+function start(){
+ b=Array(N*N).fill(0);b[(N-1)*N]=1;b[N-1]=2;turn=1;over=false;busy=false;waiting=false;counted=false;resetCards();me=1;if(mode==='local')turnMsg();else msg.textContent=T('دورك 👆');draw();
+}
+
+const $=id=>document.getElementById(id);
+const say=t=>{$('ost').textContent=t};
+let R,room=null,opp=null,tok=null,last=null,joinT=null,hbT=null,offs=[];
+async function lobby(){if(R!==undefined)return R;try{R=window.claude?await claude.use('room'):null}catch(e){R=null}return R}
+function result(){
+ const s1=b.filter(v=>v===1).length,s2=b.filter(v=>v===2).length,mi=me===1?s1:s2,th=me===1?s2:s1;
+ if(!counted){counted=true;if(s1>s2)score[1]++;else if(s2>s1)score[2]++;else score.d++;showScore();recordResult(s1,s2);window.Monet&&Monet.roundEnded()}
+ if(mode==='local'){msg.textContent=s1>s2?T('🏆 الأزرق كسب! 🟦'):s2>s1?T('🏆 الأحمر كسب! 🟥'):T('🤝 تعادل!');(s1===s2?sfx.draw:sfx.win)();return}
+ msg.textContent=mi>th?T('🏆 كسبت! برافو عليك'):th>mi?(mode==='online'?T('😅 صاحبك كسب.. العب تاني'):T('😅 الكمبيوتر كسب.. جرب تاني')):T('🤝 تعادل!');
+ (mi>th?sfx.win:th>mi?sfx.lose:sfx.draw)();
+}
+function leaveRoom(){offs.forEach(f=>{try{f()}catch(e){}});offs=[];clearInterval(joinT);clearInterval(hbT);if(room){try{room.leave()}catch(e){}}room=null;last=null;opp=null;tok=null}
+function setMode(m){
+ if(m==='cpu'){leaveRoom();mode='cpu';me=1;waiting=false;$('onp').hidden=true;$('sub').textContent=T('أنت الأزرق 🟦 ضد الكمبيوتر الأحمر 🟥')}
+ else if(m==='local'){leaveRoom();mode='local';me=1;waiting=false;$('onp').hidden=true;$('sub').textContent=T('الأزرق 🟦 ضد الأحمر 🟥');document.querySelectorAll('.lv [data-l]').forEach(y=>y.classList.remove('on'))}
+ else{$('onp').hidden=false;if(!room){mode='online';waiting=true;me=1;msg.textContent='';draw()}}
+ syncScore(mode);
+ document.querySelectorAll('[data-m]').forEach(y=>y.classList.toggle('on',y.dataset.m===m));
+}
+function sendState(){if(!room)return;last={b:b.join(''),turn,over,seq,opp:opp||tok,n:N,k:hand[1].join('')+'|'+hand[2].join('')+'|'+pts[1]+pts[2]+'|'+(shield[1]?1:0)+(shield[2]?1:0)};room.emit('state',last).catch(()=>{})}
+function turnMsg(){msg.textContent=mode==='local'?(turn===1?T('دور الأزرق 🟦'):T('دور الأحمر 🟥')):(turn===me?T('دورك 👆'):T('دور صاحبك...'))}
+function afterLocal(extra){
+ const p=me,other=p===1?2:1;
+ if(extra&&moves(b,p).length){turn=p;msg.textContent=T('دور إضافي! العب تاني ⚡')}
+ else if(moves(b,other).length)turn=other;
+ else if(moves(b,p).length){turn=p;msg.textContent=(other===1?T('الأزرق'):T('الأحمر'))+T(' معندوش حركة، الدور عليك تاني')}
+ else over=true;
+ me=turn;
+ if(over)result();else if(turn!==p)turnMsg();
+ draw();
+}
+function afterOnline(extra){
+ const p=me,other=p===1?2:1;
+ if(extra&&moves(b,p).length){turn=p;msg.textContent=T('دور إضافي! العب تاني ⚡')}
+ else if(moves(b,other).length)turn=other;
+ else if(moves(b,p).length){turn=p;msg.textContent=T('صاحبك معندوش حركة، دورك تاني')}
+ else over=true;
+ seq++;sendState();
+ if(over)result();else if(turn!==p||!moves(b,p).length)turnMsg();
+ draw();
+}
+function adopt(d){
+ const nb2=d.b.split('').map(Number),rs=nb2.length!==b.length,ch=[];
+ if(!rs)nb2.forEach((v,i)=>{if(v!==b[i])ch.push(i)});
+ const oo=me===1?2:1,oh=hand[oo].length,[h1,h2,pp,ss]=d.k.split('|');
+ hand={1:h1.split('').map(Number),2:h2.split('').map(Number)};pts={1:+pp[0],2:+pp[1]};shield={1:ss[0]==='1',2:ss[1]==='1'};armed=null;
+ if(hand[oo].length>oh)flash(T('صاحبك كسب كارت 🎴'));
+ b=nb2;turn=d.turn;over=d.over===true;seq=d.seq;last=null;waiting=false;busy=false;
+ if(!over)counted=false;
+ if(ch.length>1)sfx.cpu(ch.length-1);
+ if(over)result();else turnMsg();
+ draw(ch);
+}
+async function enter(code,host){
+ const L=await lobby();
+ if(!L){say(T('الأونلاين مش شغال هنا. افتح اللعبة وانت مسجّل دخول وادعُ صاحبك كمشارك.'));return}
+ leaveRoom();
+ try{room=await L.join('pw-'+code)}catch(e){room=null;say(T('مقدرتش أدخل الغرفة، جرب تاني'));return}
+ mode='online';me=host?1:2;seq=host?0:-1;
+ $('sub').textContent=host?T('أنت الأزرق 🟦 ضد صاحبك'):T('أنت الأحمر 🟥 ضد صاحبك');
+ document.querySelectorAll('.lv [data-l]').forEach(y=>y.classList.remove('on'));
+ b=Array(N*N).fill(0);b[(N-1)*N]=1;b[N-1]=2;turn=1;over=false;busy=false;waiting=true;counted=false;resetCards();score={1:0,2:0,d:0};scoreMode='online';showScore();
+ offs.push(room.on('join',m=>{
+  if(!host||m.isMe)return;const t=m.data&&m.data.t;
+  if(typeof t!=='string'||t.length>20)return;
+  if(!opp)opp=t;if(t!==opp)return;
+  waiting=false;sendState();say(T('صاحبك دخل ✅ الكود: ')+code.toUpperCase());turnMsg();draw();
+ }));
+ offs.push(room.on('state',m=>{
+  if(m.isMe)return;const d=m.data;
+  if(!d||typeof d.b!=='string'||![5,7,9].includes(d.n)||!new RegExp('^[012]{'+d.n*d.n+'}$').test(d.b)||(d.turn!==1&&d.turn!==2)||typeof d.k!=='string'||!/^[0-5]{0,4}\|[0-5]{0,4}\|[0-5][0-5]\|[01][01]$/.test(d.k)||!Number.isInteger(d.seq)||d.seq<=seq)return;
+  if(d.opp!==(host?opp:tok))return;
+  if(!host)say(T('متصل مع صاحبك ✅'));
+  if(d.n!==N){N=d.n;markSize()}
+  adopt(d);
+ }));
+ if(host){say(T('الكود: ')+code.toUpperCase()+T(' — ابعته لصاحبك واستنى يدخل'));msg.textContent=T('في انتظار صاحبك...')}
+ else{
+  tok=Math.random().toString(36).slice(2,10);let n=0;
+  const ping=()=>room&&room.emit('join',{t:tok}).catch(()=>{});ping();
+  say(T('بدخل الغرفة ')+code.toUpperCase()+'...');msg.textContent='';
+  joinT=setInterval(()=>{if(!waiting){clearInterval(joinT);return}ping();if(++n>=6){say(T('محدش بيرد.. اتأكد من الكود وإن صاحبك عمل الغرفة'))}},2000);
+ }
+ offs.push(room.onPeers(()=>{if(!waiting&&!over&&room&&room.peers().length<2)msg.textContent=T('صاحبك خرج من الغرفة')}));
+ hbT=setInterval(()=>{if(last&&room)room.emit('state',last).catch(()=>{})},3000);
+ draw();
+}
+function restart(){
+ if(mode==='online'&&room){
+  if(waiting)return;
+  b=Array(N*N).fill(0);b[(N-1)*N]=1;b[N-1]=2;turn=1;over=false;counted=false;resetCards();seq++;sendState();turnMsg();draw();
+ }else start();
+}
+document.querySelectorAll('[data-m]').forEach(x=>x.onclick=()=>{if(x.dataset.m==='online')setMode('online');else{setMode(x.dataset.m);start()}});
+$('mk').onclick=()=>{const c=Math.random().toString(36).slice(2,6);$('cd').value=c.toUpperCase();enter(c,true)};
+$('jn').onclick=()=>{const c=$('cd').value.trim().toLowerCase();if(!/^[a-z0-9]{4}$/.test(c)){say(T('اكتب كود من ٤ حروف أو أرقام'));return}enter(c,false)};
+function showScore(){$('sc').textContent='🟦 '+score[1]+T(' — تعادل ')+score.d+' — '+score[2]+' 🟥'}
+function syncScore(m){if(scoreMode!==m){score={1:0,2:0,d:0};scoreMode=m}showScore()}
+function markSize(){document.querySelectorAll('[data-s]').forEach(y=>y.classList.toggle('on',+y.dataset.s===N))}
+function setSize(n){
+ if(mode==='online'){
+  if(room&&me!==1){say(T('المضيف بس اللي يغيّر حجم الخريطة'));return}
+  N=n;markSize();
+  b=Array(N*N).fill(0);b[(N-1)*N]=1;b[N-1]=2;turn=1;over=false;counted=false;resetCards();
+  if(room&&!waiting){seq++;sendState();turnMsg()}
+  draw();return;
+ }
+ N=n;markSize();start();
+}
+document.querySelectorAll('[data-s]').forEach(x=>x.onclick=()=>setSize(+x.dataset.s));
+$('rsc').onclick=()=>{score={1:0,2:0,d:0};showScore()};
+// ===== التقييم =====
+const LK='pwLocal',rnd=()=>T('لاعب')+(100+Math.floor(Math.random()*900));
+let myName=rnd(),name2=T('صديق'),DB,UID,gq=Promise.resolve(),gUnsub=null,gRows=[],gState='',tab='l';
+try{myName=localStorage.getItem('pwName')||myName;localStorage.setItem('pwName',myName);name2=localStorage.getItem('pwName2')||name2}catch(e){}
+const loadL=()=>{try{const a=JSON.parse(localStorage.getItem(LK));return Array.isArray(a)?a:[]}catch(e){return[]}};
+function addLocal(n,dl){
+ const L=loadL();let r=L.find(x=>x.n===n);if(!r){r={n,w:0,l:0,d:0,pts:0};L.push(r)}
+ r.w+=dl.w;r.l+=dl.l;r.d+=dl.d;r.pts+=dl.pts;
+ try{localStorage.setItem(LK,JSON.stringify(L))}catch(e){}
+ if(!$('lbp').hidden)renderLB();
+}
+async function initG(){
+ if(DB!==undefined)return DB;
+ try{DB=window.claude?await claude.use('db'):null}catch(e){DB=null}
+ try{const U=window.claude?await claude.use('user'):null;UID=U?await U.id():null}catch(e){UID=null}
+ return DB;
+}
+function addGlobal(dl,onlyIfExists){
+ gq=gq.then(async()=>{
+  const D=await initG();if(!D||!UID)return;
+  try{
+   const ref=D.doc('lb/'+UID),sn=await ref.get();
+   if(onlyIfExists&&!sn.exists)return;
+   const o=sn.exists?sn.data():{},n=x=>Number.isFinite(x)?x:0;
+   await ref.set({nick:myName,w:n(o.w)+dl.w,l:n(o.l)+dl.l,d:n(o.d)+dl.d,pts:n(o.pts)+dl.pts,t:Date.now()});
+   gState='';
+  }catch(e){gState='write'}
+ }).catch(()=>{});
+}
+function recordResult(s1,s2){
+ const win=s1>s2?1:s2>s1?2:0,z={w:0,l:0,d:0,pts:0};
+ if(mode==='local'){
+  if(!win){addLocal(myName,{...z,d:1,pts:1});addLocal(name2,{...z,d:1,pts:1})}
+  else{addLocal(win===1?myName:name2,{...z,w:1,pts:3});addLocal(win===1?name2:myName,{...z,l:1})}
+  return;
+ }
+ const won=win===me,dr=win===0;
+ const dl={w:won?1:0,l:(!won&&!dr)?1:0,d:dr?1:0,pts:dr?1:won?(mode==='online'?4:[2,3,5][level]):0};
+ addLocal(myName,dl);addGlobal(dl);
+}
+function renderLB(){
+ const box=$('lbl');box.innerHTML='';
+ let rows=tab==='l'?loadL().map(r=>({...r,me:r.n===myName})):gRows.map(r=>({n:String(r.nick||T('لاعب')).slice(0,16),w:+r.w||0,l:+r.l||0,d:+r.d||0,pts:+r.pts||0,me:r.id===UID}));
+ rows.sort((x,y)=>y.pts-x.pts);
+ rows.slice(0,10).forEach((r,i)=>{
+  const e=document.createElement('div');e.className='row'+(r.me?' me':'');
+  [String(['🥇','🥈','🥉'][i]||(i+1)),r.n,r.pts+T(' نقطة'),r.w+T('ف · ')+r.d+T('ت · ')+r.l+T('خ')].forEach((t,k)=>{const sp=document.createElement('span');sp.textContent=t;if(k===1)sp.style.flex='1';e.appendChild(sp)});
+  box.appendChild(e);
+ });
+ if(!rows.length)box.textContent=tab==='l'?T('لسه مفيش نتايج. العب جولة وهتظهر هنا!'):T('لسه مفيش لاعبين في القائمة العالمية.');
+ $('lbn').textContent=tab==='l'?T('النتايج المحفوظة على جهازك.'):DB===null?T('القائمة العالمية مش متاحة هنا.'):(DB!==undefined&&!UID)?T('سجّل دخول عشان اسمك يظهر في القائمة.'):gState==='write'?T('تعذّر تسجيل نتيجتك (صلاحية مشاهدة بس؟).'):T('فيها اللاعبين اللي عندهم صلاحية على اللعبة.');
+ $('lbc').hidden=tab!=='l';
+}
+function setTab(t){tab=t;$('tl').classList.toggle('on',t==='l');$('tg').classList.toggle('on',t==='g');renderLB()}
+async function openLB(){
+ openSheet('lbp');$('nm1').value=myName;$('nm2').value=name2;renderLB();
+ const D=await initG();
+ if(D&&!gUnsub){try{gUnsub=D.collection('lb').orderBy('pts','desc').limit(20).onSnapshot(sn=>{gRows=sn.docs.map(d=>({id:d.id,...d.data()}));renderLB()},()=>{gUnsub=null;gState='read';renderLB()})}catch(e){}}
+ renderLB();
+}
+function closeLB(){closeSheet('lbp');if(gUnsub){gUnsub();gUnsub=null}}
+$('lbb').onclick=openLB;$('lbx').onclick=closeLB;
+$('lbp').onclick=e=>{if(e.target.id==='lbp')closeLB()};
+$('tl').onclick=()=>setTab('l');$('tg').onclick=()=>setTab('g');
+$('nm1').onchange=e=>{const v=e.target.value.trim().slice(0,12);if(v){myName=v;try{localStorage.setItem('pwName',v)}catch(x){}addGlobal({w:0,l:0,d:0,pts:0},true)}e.target.value=myName;renderLB()};
+$('nm2').onchange=e=>{const v=e.target.value.trim().slice(0,12);if(v){name2=v;try{localStorage.setItem('pwName2',v)}catch(x){}}e.target.value=name2};
+let clr=false;
+$('lbc').onclick=e=>{if(!clr){clr=true;e.target.textContent=T('اضغط تاني للتأكيد');setTimeout(()=>{clr=false;e.target.textContent=T('مسح النتايج المحلية')},3000);return}clr=false;e.target.textContent=T('مسح النتايج المحلية');try{localStorage.removeItem(LK)}catch(x){}renderLB()};
+const TH=[
+ {en:["Blue", "Red"],n:['أزرق','أحمر'],f:'زرقاء',e:['🟦','🟥'],c:['#2f6bff','#ff4b4b']},
+ {en:["Green", "Orange"],n:['أخضر','برتقالي'],f:'خضراء',e:['🟩','🟧'],c:['#22a559','#ff8a1f']},
+ {en:["Purple", "Yellow"],n:['بنفسجي','أصفر'],f:'بنفسجية',e:['🟪','🟨'],c:['#8e44ff','#e6a100']},
+ {en:["Teal", "Coral"],n:['تركوازي','مرجاني'],f:'تركوازية',e:['🩵','🩷'],c:['#0fb5ae','#ff6f61']},
+ {en:["Brown", "Pink"],n:['بني','وردي'],f:'بنية',e:['🟫','🌸'],c:['#8b5a2b','#ff5fa2']},
+ {en:["Cyan", "Fuchsia"],n:['سماوي','فوشيا'],f:'سماوية',e:['🔷','🟣'],c:['#00b8d9','#ff2bd6'],bg:'#0b0f1a',cell:'#1a2236',fg:'#f1f1f1',glow:true}
+];
+let cur=0;
+const TXT=['msg','sub','sc','ost'];
+const NM=t=>LANG==='en'?{n:t.en,f:t.en[0],e:t.e}:t;
+function tr(t,a,c){if(a===c)return t;a=NM(a);c=NM(c);[[a.f,c.f],[a.n[0],c.n[0]],[a.n[1],c.n[1]],[a.e[0],c.e[0]],[a.e[1],c.e[1]]].forEach(([x,y])=>{t=t.split(x).join(y)});return t}
+function setTheme(i){
+ const a=TH[cur],c=TH[i];
+ TXT.forEach(id=>{const e=$(id);e.textContent=tr(e.textContent,a,c)});
+ $('how').innerHTML=tr($('how').innerHTML,a,c);
+ cur=i;
+ const r=document.documentElement.style;r.setProperty('--blue',c.c[0]);r.setProperty('--red',c.c[1]);
+ ['bg','cell','fg'].forEach(k=>{if(c[k])r.setProperty('--'+k,c[k]);else r.removeProperty('--'+k)});
+ document.documentElement.classList.toggle('glow',!!c.glow);
+ document.querySelectorAll('[data-t]').forEach(y=>y.classList.toggle('on',+y.dataset.t===i));
+ try{localStorage.setItem('pwTheme',i)}catch(e){}
+}
+new MutationObserver(()=>{if(!cur)return;TXT.forEach(id=>{const e=$(id),t=tr(e.textContent,TH[0],TH[cur]);if(t!==e.textContent)e.textContent=t})})
+ .observe(document.body,{childList:true,characterData:true,subtree:true});
+document.querySelectorAll('[data-t]').forEach(x=>x.onclick=()=>setTheme(+x.dataset.t));
+document.getElementById('rs').onclick=()=>{(window.Monet?Monet.beforeNextRound():Promise.resolve()).then(restart)};markSize();showScore();start();
+{let t=0;try{t=+localStorage.getItem('pwTheme')||0}catch(e){}setTheme(TH[t]?t:0)}
+initG();
+// ===== الدخل: كارت مجاني بإعلان + إزالة الإعلانات =====
+function updateMonet(){
+ const M=window.Monet,on=!!(M&&M.available());
+ const canGift=on&&(mode==='cpu'||mode==='local')&&!over&&!waiting&&!busy&&turn===me&&!rewardUsed&&hand[me].length<4;
+ $('rwd').hidden=!canGift;
+ $('rwd').textContent=M&&M.hasNoAds()?T('🎁 كارت مجاني'):T('🎁 كارت مجاني (إعلان)');
+ $('noads').hidden=!(on&&!M.hasNoAds());
+}
+$('rwd').onclick=async()=>{
+ if(rewardUsed||hand[me].length>=4)return;
+ $('rwd').disabled=true;
+ const r=await Monet.rewarded();
+ $('rwd').disabled=false;
+ if(r==='ok'&&hand[me].length<4){rewardUsed=true;hand[me].push(Math.floor(Math.random()*CARDS.length));flash(T('🎁 كسبت كارت هدية!'))}
+ else if(r!=='ok')flash(T('الإعلان مش جاهز دلوقتي، جرب بعد شوية'));
+ draw();
+};
+$('noads').onclick=async()=>{const r=await Monet.buyNoAds();if(r!=='ok')flash(r==='unavailable'?T('الشراء مش متاح دلوقتي'):T('تعذّر إتمام الشراء'));draw()};
+if(window.Monet){Monet.onChange(()=>draw());Monet.init()}
+// ===== الشاشة الافتتاحية والقائمة الرئيسية =====
+let stack=[],inGame=false,ignore=0;
+const pushS=()=>history.pushState({},'');
+const backS=()=>{ignore++;history.back()};
+window.addEventListener('popstate',()=>{
+ if(ignore>0){ignore--;return}
+ if(stack.length){const id=stack.pop();$(id).hidden=true;return}
+ if(inGame)toMenu(true);
+});
+function openSheet(id){$(id).hidden=false;stack.push(id);pushS()}
+function closeSheet(id,keep){const i=stack.lastIndexOf(id);$(id).hidden=true;if(i<0)return;stack.splice(i,1);if(!keep)backS()}
+function toGame(reuse){$('menu').hidden=true;$('gameScr').hidden=false;inGame=true;if(!reuse)pushS();draw()}
+function toMenu(fromPop){$('gameScr').hidden=true;$('menu').hidden=false;inGame=false;if(!fromPop)backS();window.scrollTo(0,0)}
+$('mCpu').onclick=()=>openSheet('lvs');
+document.querySelectorAll('[data-pl]').forEach(x=>x.onclick=()=>{closeSheet('lvs',true);document.querySelector('[data-l="'+x.dataset.pl+'"]').click();toGame(true)});
+$('mFriend').onclick=()=>{document.querySelector('[data-m="local"]').click();toGame(false)};
+$('mLb').onclick=()=>openLB();
+$('mSet').onclick=()=>openSheet('sets');
+$('mHow').onclick=()=>openSheet('hows');
+document.querySelectorAll('[data-close]').forEach(x=>x.onclick=()=>closeSheet(x.dataset.close));
+document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.target===o&&o.id!=='lbp')closeSheet(o.id)}));
+$('mnu').onclick=()=>toMenu(false);
+$('snd2').onclick=()=>{$('snd').click();$('snd2').textContent=$('snd').textContent==='🔊'?T('🔊 الصوت شغال'):T('🔇 الصوت مكتوم')};
+const setLang=l=>{try{localStorage.setItem('pwLang',l);sessionStorage.setItem('pwSkip','1')}catch(e){}location.reload()};
+$('lgAr').onclick=()=>setLang('ar');$('lgEn').onclick=()=>setLang('en');
+$(LANG==='ar'?'lgAr':'lgEn').classList.add('on');
+let skip=false;try{skip=sessionStorage.getItem('pwSkip')==='1';sessionStorage.removeItem('pwSkip')}catch(e){}
+if(skip){$('splash').remove();$('menu').hidden=false}
+else setTimeout(()=>{$('splash').classList.add('out');$('menu').hidden=false;setTimeout(()=>$('splash').remove(),600)},2000);
+
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+</script>
+</body>
+</html>
